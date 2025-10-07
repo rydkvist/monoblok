@@ -107,10 +107,7 @@ describe('types generate', () => {
 
       await typesCommand.parseAsync(['node', 'test', 'generate', '--space', '12345']);
 
-      expect(generateStoryblokTypes).toHaveBeenCalledWith({
-        filename: undefined,
-        path: undefined,
-      });
+      expect(generateStoryblokTypes).toHaveBeenCalledWith(undefined);
 
       expect(generateTypes).toHaveBeenCalledWith(mockSpaceData, {
         path: undefined,
@@ -156,7 +153,6 @@ describe('types generate', () => {
       // Verify that generateTypes was called with the strict option set to true
       expect(generateTypes).toHaveBeenCalledWith(mockSpaceData, {
         strict: true,
-        path: undefined,
       });
     });
 
