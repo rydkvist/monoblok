@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { SpaceComponent, SpaceComponentsData } from '../../../commands/components/constants';
-import type { GenerateTypesOptions } from './constants';
+import { DEFAULT_GENERATE_TYPES_OPTIONS, type GenerateTypesOptions } from './constants';
 
 // Import the mocked functions
 import { saveToFile } from '../../../utils/filesystem';
@@ -165,7 +165,7 @@ describe('generate types actions', () => {
   it('should generate types successfully', async () => {
     // Create mock options
     const mockOptions: GenerateTypesOptions = {
-      strict: false,
+      ...DEFAULT_GENERATE_TYPES_OPTIONS,
     };
 
     // Call the function with the correct parameters
@@ -184,6 +184,7 @@ describe('generate types actions', () => {
 
   it('should generate types successfully with strict mode', async () => {
     const mockOptions: GenerateTypesOptions = {
+      ...DEFAULT_GENERATE_TYPES_OPTIONS,
       strict: true,
     };
 
@@ -195,7 +196,7 @@ describe('generate types actions', () => {
   it('should handle customFieldsParser option', async () => {
     // Create mock options with customFieldsParser
     const mockOptions: GenerateTypesOptions = {
-      strict: false,
+      ...DEFAULT_GENERATE_TYPES_OPTIONS,
       customFieldsParser: '/path/to/custom/parser.ts',
     };
 
@@ -216,7 +217,7 @@ describe('generate types actions', () => {
   it('should handle compilerOptions option', async () => {
     // Create mock options with compilerOptions
     const mockOptions: GenerateTypesOptions = {
-      strict: false,
+      ...DEFAULT_GENERATE_TYPES_OPTIONS,
       compilerOptions: '/path/to/compiler/options',
     };
 
@@ -237,7 +238,7 @@ describe('generate types actions', () => {
   it('should apply typePrefix to component type names', async () => {
     // Create mock options with typePrefix
     const mockOptions: GenerateTypesOptions = {
-      strict: false,
+      ...DEFAULT_GENERATE_TYPES_OPTIONS,
       typePrefix: 'Custom',
     };
 
@@ -256,32 +257,28 @@ describe('generate types actions', () => {
 
 describe('getComponentType', () => {
   it('should convert component name to PascalCase', () => {
-    const options: GenerateTypesOptions = {};
-    expect(getComponentType('test_component', options)).toBe('TestComponent');
+    expect(getComponentType('test_component', DEFAULT_GENERATE_TYPES_OPTIONS)).toBe('TestComponent');
   });
 
   it('should handle special characters in component name', () => {
-    const options: GenerateTypesOptions = {};
-    expect(getComponentType('test-component!', options)).toBe('TestComponent');
+    expect(getComponentType('test-component!', DEFAULT_GENERATE_TYPES_OPTIONS)).toBe('TestComponent');
   });
 
   it('should handle emojis in component name', () => {
-    const options: GenerateTypesOptions = {};
-    expect(getComponentType('test😀component', options)).toBe('TestComponent');
+    expect(getComponentType('test😀component', DEFAULT_GENERATE_TYPES_OPTIONS)).toBe('TestComponent');
   });
 
   it('should handle multiple consecutive special characters', () => {
-    const options: GenerateTypesOptions = {};
-    expect(getComponentType('test___component', options)).toBe('TestComponent');
+    expect(getComponentType('test___component', DEFAULT_GENERATE_TYPES_OPTIONS)).toBe('TestComponent');
   });
 
   it('should handle component names starting with numbers', () => {
-    const options: GenerateTypesOptions = {};
-    expect(getComponentType('123component', options)).toBe('_123component');
+    expect(getComponentType('123component', DEFAULT_GENERATE_TYPES_OPTIONS)).toBe('_123component');
   });
 
   it('should apply typePrefix when provided', () => {
     const options: GenerateTypesOptions = {
+      ...DEFAULT_GENERATE_TYPES_OPTIONS,
       typePrefix: 'Custom',
     };
     expect(getComponentType('test_component', options)).toBe('CustomTestComponent');
@@ -289,6 +286,7 @@ describe('getComponentType', () => {
 
   it('should handle empty typePrefix', () => {
     const options: GenerateTypesOptions = {
+      ...DEFAULT_GENERATE_TYPES_OPTIONS,
       typePrefix: '',
     };
     expect(getComponentType('test_component', options)).toBe('TestComponent');
@@ -296,6 +294,7 @@ describe('getComponentType', () => {
 
   it('should apply typeSuffix when provided', () => {
     const options: GenerateTypesOptions = {
+      ...DEFAULT_GENERATE_TYPES_OPTIONS,
       typeSuffix: 'CustomSuffixValue',
     };
     expect(getComponentType('test_component', options)).toBe('TestComponentCustomSuffixValue');
@@ -303,14 +302,14 @@ describe('getComponentType', () => {
 
   it('should handle empty typeSuffix', () => {
     const options: GenerateTypesOptions = {
+      ...DEFAULT_GENERATE_TYPES_OPTIONS,
       typeSuffix: '',
     };
     expect(getComponentType('test_component', options)).toBe('TestComponent');
   });
 
   it('should handle component names with spaces', () => {
-    const options: GenerateTypesOptions = {};
-    expect(getComponentType('test component', options)).toBe('TestComponent');
+    expect(getComponentType('test component', DEFAULT_GENERATE_TYPES_OPTIONS)).toBe('TestComponent');
   });
 });
 
@@ -370,7 +369,7 @@ describe('component property type annotations', () => {
     };
 
     // Generate types
-    const result = await generateTypes(spaceData, { strict: false });
+    const result = await generateTypes(spaceData, DEFAULT_GENERATE_TYPES_OPTIONS);
 
     // Verify that the result contains the expected property type
     expect(result).toContain('title: string');
@@ -404,7 +403,7 @@ describe('component property type annotations', () => {
     };
 
     // Generate types
-    const result = await generateTypes(spaceData, { strict: false });
+    const result = await generateTypes(spaceData, DEFAULT_GENERATE_TYPES_OPTIONS);
 
     // Verify that the result contains the expected property type
     expect(result).toContain('description?: string');
@@ -438,7 +437,7 @@ describe('component property type annotations', () => {
     };
 
     // Generate types
-    const result = await generateTypes(spaceData, { strict: false });
+    const result = await generateTypes(spaceData, DEFAULT_GENERATE_TYPES_OPTIONS);
 
     // Verify that the result contains the expected property type
     expect(result).toContain('count?: string');
@@ -472,7 +471,7 @@ describe('component property type annotations', () => {
     };
 
     // Generate types
-    const result = await generateTypes(spaceData, { strict: false });
+    const result = await generateTypes(spaceData, DEFAULT_GENERATE_TYPES_OPTIONS);
 
     // Verify that the result contains the expected property type
     expect(result).toContain('isActive?: boolean');
@@ -500,7 +499,7 @@ describe('component property type annotations', () => {
       presets: [],
       internalTags: [],
     };
-    expect(await generateTypes(spaceData1, { strict: false }))
+    expect(await generateTypes(spaceData1, DEFAULT_GENERATE_TYPES_OPTIONS))
       .toContain('link?: Exclude<StoryblokMultilink, {linktype?: "asset"}>;');
 
     const componentWithMultilinkBoth: SpaceComponent = {
@@ -524,7 +523,7 @@ describe('component property type annotations', () => {
       presets: [],
       internalTags: [],
     };
-    expect(await generateTypes(spaceData2, { strict: false }))
+    expect(await generateTypes(spaceData2, DEFAULT_GENERATE_TYPES_OPTIONS))
       .toContain('link?: StoryblokMultilink;');
 
     const componentWithMultilinkNone: SpaceComponent = {
@@ -548,7 +547,7 @@ describe('component property type annotations', () => {
       presets: [],
       internalTags: [],
     };
-    expect(await generateTypes(spaceData3, { strict: false }))
+    expect(await generateTypes(spaceData3, DEFAULT_GENERATE_TYPES_OPTIONS))
       .toContain('link?: Exclude<StoryblokMultilink, {linktype?: "email"} | {linktype?: "asset"}>;');
   });
 
@@ -582,7 +581,7 @@ describe('component property type annotations', () => {
     };
 
     // Generate types
-    const result = await generateTypes(spaceData, { strict: false });
+    const result = await generateTypes(spaceData, DEFAULT_GENERATE_TYPES_OPTIONS);
 
     // Verify that the result contains the expected property type
     expect(result).toContain('content?:');
@@ -653,7 +652,7 @@ describe('component property type annotations', () => {
     };
 
     // Generate types
-    const result = await generateTypes(spaceData, { strict: false });
+    const result = await generateTypes(spaceData, DEFAULT_GENERATE_TYPES_OPTIONS);
 
     // Verify that the result contains the expected union type for tag-based restrictions
     // Should include Button and Image (both have tags 1 or 2), but not Text (only has tag 4)
@@ -693,7 +692,7 @@ describe('component property type annotations', () => {
     };
 
     // Generate types
-    const result = await generateTypes(spaceData, { strict: false });
+    const result = await generateTypes(spaceData, DEFAULT_GENERATE_TYPES_OPTIONS);
 
     // Verify that the result contains the expected property type but not the tab
     expect(result).toContain('title: string');
@@ -730,7 +729,7 @@ describe('component property type annotations', () => {
 
     // Create mock options with customFieldsParser
     const mockOptions: GenerateTypesOptions = {
-      strict: false,
+      ...DEFAULT_GENERATE_TYPES_OPTIONS,
       customFieldsParser: '/path/to/custom/parser.ts',
     };
 
@@ -777,7 +776,7 @@ describe('generateStoryblokTypes', () => {
 
   it('should generate Storyblok types with custom path', async () => {
     // Call the function with custom path
-    const result = await generateStoryblokTypes({ path: '/custom/path' });
+    const result = await generateStoryblokTypes('/custom/path');
 
     // Verify that the function returns true
     expect(result).toBe(true);
@@ -812,7 +811,7 @@ describe('saveTypesToComponentsFile', () => {
 
   it('should call saveTypesToComponentsFile with the expected path and default filename', async () => {
     const dummyTypes = '// types content';
-    await saveTypesToComponentsFile('12345', dummyTypes, {});
+    await saveTypesToComponentsFile('12345', dummyTypes, DEFAULT_GENERATE_TYPES_OPTIONS.filename);
 
     // We expect join to be called with the filename ending in -components.d.ts
     expect(join).toHaveBeenCalledWith(expect.any(String), `storyblok-components.d.ts`);
@@ -823,7 +822,7 @@ describe('saveTypesToComponentsFile', () => {
   it('should call saveTypesToComponentsFile with the expected path and custom filename', async () => {
     const customFilename = 'my-custom-types';
     const dummyTypes = '// types content';
-    await saveTypesToComponentsFile('12345', dummyTypes, { filename: customFilename });
+    await saveTypesToComponentsFile('12345', dummyTypes, customFilename);
 
     // We expect join to be called with the filename ending in -components.d.ts
     expect(join).toHaveBeenCalledWith(expect.any(String), `${customFilename}.d.ts`);
