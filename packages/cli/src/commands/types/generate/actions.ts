@@ -5,7 +5,7 @@ import type { GenerateTypesOptions } from './constants';
 import type { StoryblokPropertyType } from '../../../types/storyblok';
 import { storyblokSchemas } from '../../../utils/storyblok-schemas';
 import { join, resolve } from 'node:path';
-import { resolvePath, saveToFile } from '../../../utils/filesystem';
+import { saveToFile } from '../../../utils/filesystem';
 import { readFileSync } from 'node:fs';
 import type { ComponentPropertySchema } from '../../../types/schemas';
 import type { TypesCommandOptions } from '../command';
@@ -402,11 +402,8 @@ export const generateTypes = async (
   }
 };
 
-export const saveTypesToComponentsFile = async (space: string, typedefString: string, filename: GenerateTypesOptions['filename'], path?: TypesCommandOptions['path']) => {
-  // Ensure we always include the components/space folder structure regardless of custom path
-  const resolvedPath = path
-    ? resolve(process.cwd(), path, 'types', space)
-    : resolvePath(path, `types/${space}`);
+export const saveTypesToComponentsFile = async (space: string, typedefString: string, filename: GenerateTypesOptions['filename'], path: TypesCommandOptions['path']) => {
+  const resolvedPath = resolve(process.cwd(), path, 'types', space);
 
   try {
     await saveToFile(join(resolvedPath, `${filename}.d.ts`), typedefString);
@@ -421,7 +418,7 @@ export const saveTypesToComponentsFile = async (space: string, typedefString: st
  * @param options - Options for generating the types
  * @returns Promise that resolves when the file is saved
  */
-export const generateStoryblokTypes = async (path?: TypesCommandOptions['path']) => {
+export const generateStoryblokTypes = async (path: TypesCommandOptions['path']) => {
   try {
     // Get the path to the storyblok.ts file
 
@@ -438,10 +435,7 @@ export const generateStoryblokTypes = async (path?: TypesCommandOptions['path'])
     ].join('\n');
 
     // Determine the path to save the file
-    const resolvedPath = path
-      ? resolve(process.cwd(), path, 'types')
-      : resolvePath(path, 'types');
-
+    const resolvedPath = resolve(process.cwd(), path, 'types');
     await saveToFile(join(resolvedPath, `storyblok.d.ts`), typeDefs);
     return true;
   }
